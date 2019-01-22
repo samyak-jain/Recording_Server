@@ -9,6 +9,7 @@ from tornado.options import define, options
 import tornado.escape
 from tornado.escape import native_str, parse_qs_bytes
 import subprocess
+from google.cloud import storage
 
 define("port", default=8080, help="runs on the given port", type=int)
 
@@ -18,10 +19,6 @@ class MyAppException(tornado.web.HTTPError):
 
 
 class BaseHandler(tornado.web.RequestHandler):
-
-    def db(self):
-    	pass
-
     def write_error(self, status_code, **kwargs):
         self.set_header('Content-Type', 'application/json')
         if self.settings.get("serve_traceback") and "exc_info" in kwargs:
@@ -57,7 +54,7 @@ class AgoraHandler(BaseHandler):
     async def post(self):
     	data = parse_qs_bytes(native_str(self.request.body), keep_blank_values=True)
     	appId, uid, channel_name, nick_name = data['appid'], data['uid'], data['channel_name'], data['nick_name']
-    	success = subprocess.call(["./Agora_Recording_SDK_for_Linux_FULL/samples/cpp/recorder_local", "--appId", appId, "--uid", uid, "--channel", channel_name, "--appliteDir" , "Agora_Recording_SDK_for_Linux_FULL/bin/", '--idle', '4', '--isMixingEnabled', '1', '--audioProfile', '2'])
+    	success = subprocess.call(["./Agora_Recording_SDK_for_Linux_FULL/samples/cpp/recorder_local", "--appId", appId, "--uid", uid, "--channel", channel_name, "--appliteDir" , "Agora_Recording_SDK_for_Linux_FULL/bin/", '--idle', '4', '--audioProfile', '1'])
 
     	if success:
     		self.write(json.dumps({
@@ -80,7 +77,7 @@ if __name__ == "__main__":
         ],
         default_handler_class = my404handler,
         debug = True,
-        # db_client = client,
+        storage_client = storage.Client.from_service_account_json("secret/agora-recording-firebase-adminsdk-21dne-7130057180.json"),
     )
     http_server = tornado.httpserver.HTTPServer(app)
     http_server.listen(os.environ.get("PORT", options.port))
