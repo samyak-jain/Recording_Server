@@ -63,26 +63,27 @@ class AgoraHandler(BaseHandler):
     async def post(self):
     	data = parse_qs_bytes(native_str(self.request.body), keep_blank_values=True)
     	appId, uid, channel_name, nick_name = list(map(lambda x: x[0].decode("utf-8"), [data['appid'], data['uid'], data['channel_name'], data['nick_name']]))
-    	success = subprocess.run(["./Agora_Recording_SDK_for_Linux_FULL/samples/cpp/recorder_local", "--appId", appId, "--uid", uid, "--channel", channel_name, "--appliteDir" , "Agora_Recording_SDK_for_Linux_FULL/bin/", '--idle', '4', '--audioProfile', '1', '--recordFileRootDir', nick_name])
+    	config_filename = f"configRec_{nick_name}.json"
+    	sdk_path = "./Agora_Recording_SDK_for_Linux_FULL/samples/cpp/"
+    	with open(os.path.join(sdk_path, config_filename), "w") as cfg:
+    		cfg.write('{"Recording_Dir" : "./' + nick_name + '"}')
 
-    	if success.returncode:
-    		outfile = glob.glob(os.path.join(os.getcwd(), nick_name, os.listdir(nick_name)[0]), "*.aac")
-    		bucket = self.db()
-    		blob = bucket.blob(blob_name)
-    		blob.upload_from_filename(path_to_file)
-
-
-
-    		self.write(json.dumps({
-    			'status_code': 200,
-    			'message': 'everything seems to be fine',
-    			'url': blob.public_url
-    		}))
-    	else:
-    		self.write(json.dumps({
-    			'status_code': 500,
-    			'message': 'somethings wrong'
-    		}))
+    	success = subprocess.run([sdk_path + 'recorder_local', "--appId", appId, "--uid", "0", "--channel", channel_name, "--appliteDir" , "Agora_Recording_SDK_for_Linux_FULL/bin/", '--idle', '4', '--audioProfile', '2', '--cfgFilePath', os.path.join(sdk_path, config_filename), "--isMixingEnabled", "1"])
+    	outfile = glob.glob(str(os.path.join(os.getcwd(), nick_name) + "/*.aac"))[0]
+    	# print(str(os.path.join(os.getcwd(), nick_namez o)
+    	# print(outfile)
+    	bucket = self.db()
+    	blob = bucket.blob(nick_name + ".aac")
+    	blob.upload_from_filename(outfile)
+    	self.write(json.dumps({
+    		'status_code': 200,
+    		'message': 'everything seems to be fine',
+    		'url': blob.public_url
+    	}))
+    		# self.write(json.dumps({
+    		# 	'status_code': 500,
+    		# 	'message': 'somethings wrong'
+    		# }))
 
 
 
