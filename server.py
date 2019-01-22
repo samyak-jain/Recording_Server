@@ -57,7 +57,7 @@ class AgoraHandler(BaseHandler):
     async def post(self):
     	data = parse_qs_bytes(native_str(self.request.body), keep_blank_values=True)
     	appId, uid, channel_name, nick_name = data['appid'], data['uid'], data['channel_name'], data['nick_name']
-    	success = subprocess.call(["./recorder_local", "--appId", appId, "--uid", uid, "--channel", channel_name, "--appliteDir" , "Agora_Recording_SDK_for_Linux_FULL/bin/"])
+    	success = subprocess.call(["./Agora_Recording_SDK_for_Linux_FULL/samples/cpp/recorder_local", "--appId", appId, "--uid", uid, "--channel", channel_name, "--appliteDir" , "Agora_Recording_SDK_for_Linux_FULL/bin/", '--idle', '4', '--isMixingEnabled', '1', '--audioProfile', '2'])
 
     	if success:
     		self.write(json.dumps({
@@ -76,7 +76,7 @@ if __name__ == "__main__":
     options.parse_command_line()
     app = tornado.web.Application(
         handlers=[
-            (r"/", AuthHandler),
+            (r"/", AgoraHandler),
         ],
         default_handler_class = my404handler,
         debug = True,
