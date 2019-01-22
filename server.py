@@ -66,7 +66,7 @@ class AgoraHandler(BaseHandler):
     	success = subprocess.run(["./Agora_Recording_SDK_for_Linux_FULL/samples/cpp/recorder_local", "--appId", appId, "--uid", uid, "--channel", channel_name, "--appliteDir" , "Agora_Recording_SDK_for_Linux_FULL/bin/", '--idle', '4', '--audioProfile', '1', '--recordFileRootDir', nick_name])
 
     	if success.returncode:
-    		outfile = glob.glob(os.path.join(os.getcwd(), nickname, os.listdir(nick_name)[0]), "*.aac")
+    		outfile = glob.glob(os.path.join(os.getcwd(), nick_name, os.listdir(nick_name)[0]), "*.aac")
     		bucket = self.db()
     		blob = bucket.blob(blob_name)
     		blob.upload_from_filename(path_to_file)
