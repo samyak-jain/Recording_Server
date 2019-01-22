@@ -62,16 +62,22 @@ class my404handler(BaseHandler):
 class AgoraHandler(BaseHandler):
     async def post(self):
     	data = parse_qs_bytes(native_str(self.request.body), keep_blank_values=True)
-    	print(data)
+    	# dict(data.keys()[0])
     	appId, uid, channel_name, nick_name = data['appid'], data['uid'], data['channel_name'], data['nick_name']
-    	success = subprocess.call(["./Agora_Recording_SDK_for_Linux_FULL/samples/cpp/recorder_local", "--appId", appId, "--uid", uid, "--channel", channel_name, "--appliteDir" , "Agora_Recording_SDK_for_Linux_FULL/bin/", '--idle', '4', '--audioProfile', '1', '--recordFileRootDir', nick_name])
-    	glob.glob(os.path.join(os.getcwd(), nickname, os.listdir(nick_name)[0]), "*.aac")
+    	success = subprocess.run(["./Agora_Recording_SDK_for_Linux_FULL/samples/cpp/recorder_local", "--appId", appId, "--uid", uid, "--channel", channel_name, "--appliteDir" , "Agora_Recording_SDK_for_Linux_FULL/bin/", '--idle', '4', '--audioProfile', '1', '--recordFileRootDir', nick_name])
+
+    	if success.returncode:
+    		outfile = glob.glob(os.path.join(os.getcwd(), nickname, os.listdir(nick_name)[0]), "*.aac")
+    		bucket = self.db()
+    		blob = bucket.blob(blob_name)
+    		blob.upload_from_filename(path_to_file)
 
 
-    	if success:
+
     		self.write(json.dumps({
     			'status_code': 200,
-    			'message': 'everything seems to be fine'
+    			'message': 'everything seems to be fine',
+    			'url': blob.public_url
     		}))
     	else:
     		self.write(json.dumps({
