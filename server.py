@@ -62,8 +62,7 @@ class my404handler(BaseHandler):
 class AgoraHandler(BaseHandler):
     async def post(self):
     	data = parse_qs_bytes(native_str(self.request.body), keep_blank_values=True)
-    	# dict(data.keys()[0])
-    	appId, uid, channel_name, nick_name = data['appid'], data['uid'], data['channel_name'], data['nick_name']
+    	appId, uid, channel_name, nick_name = list(map(lambda x: x[0].decode("utf-8"), [data['appid'], data['uid'], data['channel_name'], data['nick_name']]))
     	success = subprocess.run(["./Agora_Recording_SDK_for_Linux_FULL/samples/cpp/recorder_local", "--appId", appId, "--uid", uid, "--channel", channel_name, "--appliteDir" , "Agora_Recording_SDK_for_Linux_FULL/bin/", '--idle', '4', '--audioProfile', '1', '--recordFileRootDir', nick_name])
 
     	if success.returncode:
