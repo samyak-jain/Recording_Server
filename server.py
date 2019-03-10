@@ -70,8 +70,6 @@ class AgoraHandler(BaseHandler):
 
     	success = subprocess.run([sdk_path + 'recorder_local', "--appId", appId, "--uid", "0", "--channel", channel_name, "--appliteDir" , "Agora_Recording_SDK_for_Linux_FULL/bin/", '--idle', '4', '--audioProfile', '2', '--cfgFilePath', os.path.join(sdk_path, config_filename), "--isMixingEnabled", "1"])
     	outfile = glob.glob(str(os.path.join(os.getcwd(), nick_name) + "/*.aac"))[0]
-    	# print(str(os.path.join(os.getcwd(), nick_namez o)
-    	# print(outfile)
     	bucket = self.db()
     	blob = bucket.blob(nick_name + ".aac")
     	blob.upload_from_filename(outfile)
@@ -80,10 +78,6 @@ class AgoraHandler(BaseHandler):
     		'message': 'everything seems to be fine',
     		'url': blob.public_url
     	}))
-    		# self.write(json.dumps({
-    		# 	'status_code': 500,
-    		# 	'message': 'somethings wrong'
-    		# }))
 
 
 
